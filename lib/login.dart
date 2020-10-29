@@ -24,10 +24,10 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            TitleWidget(),
+            Expanded(
+                child: Padding(
+                    padding: const EdgeInsets.all(20.0), child: TitleWidget())),
             EmailField(this.setEmail),
             EmailSubmitionWidget(this.alertText),
             DesignedWidget(),

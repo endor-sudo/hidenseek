@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:hide_n_seek/devfound.dart';
 import 'title.dart';
 import 'footer.dart';
 import 'devfound.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 
 class Scan extends StatefulWidget {
   @override
@@ -14,10 +14,10 @@ class _ScanState extends State<Scan> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            TitleWidget(),
+            Expanded(
+                child: Padding(
+                    padding: const EdgeInsets.all(20.0), child: TitleWidget())),
             RadarStill(),
             AlertHistory(),
             DesignedWidget(),
@@ -29,16 +29,63 @@ class _ScanState extends State<Scan> {
 }
 
 class RadarStill extends StatefulWidget {
+  final FlutterBlue flutterBlue = FlutterBlue.instance;
+  final List<BluetoothDevice> devices = new List<BluetoothDevice>();
+
   @override
   _RadarStillState createState() => _RadarStillState();
 }
 
 class _RadarStillState extends State<RadarStill> {
-  click() {
-    //FlutterBlue flutterBlue = FlutterBlue.instance;
+  _addDeviceTolist(final BluetoothDevice device) {
+    if (!widget.devices.contains(device)) {
+      setState(() {
+        widget.devices.add(device);
+      });
+    }
+  }
 
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => DevFound()));
+  click() {
+    /*
+    // Start scanning
+    flutterBlue.startScan(timeout: Duration(seconds: 4));
+
+    // Listen to scan results
+    StreamSubscription<List<ScanResult>> subscription =
+        flutterBlue.scanResults.listen((results) {
+      // do something with scan results
+      for (ScanResult r in results) {
+        print('==================>${r.device.name} found! rssi: ${r.rssi}');
+      }
+      devices = results;
+    });
+
+    // Stop scanning
+    flutterBlue.stopScan();
+    //sleep(const Duration(seconds: 10));
+    */
+
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => DevFound(widget.devices)));
+  }
+
+  @override
+  void initState() {
+    //todo: implement initState
+    super.initState();
+    widget.flutterBlue.connectedDevices
+        .asStream()
+        .listen((List<BluetoothDevice> devices) {
+      for (BluetoothDevice device in devices) {
+        _addDeviceTolist(device);
+      }
+    });
+    widget.flutterBlue.scanResults.listen((List<ScanResult> results) {
+      for (ScanResult result in results) {
+        _addDeviceTolist(result.device);
+      }
+    });
+    widget.flutterBlue.startScan();
   }
 
   @override
