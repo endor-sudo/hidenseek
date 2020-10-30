@@ -54,16 +54,16 @@ ListView _buildListViewOfDevices(final List<BluetoothDevice> devices) {
               child: Column(
                 children: <Widget>[
                   Text(device.name == '' ? '(unknown device)' : device.name,
-                      style: TextStyle(color: Colors.amber)),
+                      style: TextStyle(color: Colors.green)),
                   Text(device.id.toString(),
-                      style: TextStyle(color: Colors.amber)),
+                      style: TextStyle(color: Colors.green)),
                 ],
               ),
             ),
             FlatButton(
-              color: Colors.blue,
+              color: Colors.green,
               child: Text(
-                'Connect',
+                'Alert',
                 style: TextStyle(color: Colors.white),
               ),
               onPressed: () {},

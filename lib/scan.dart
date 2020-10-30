@@ -108,12 +108,12 @@ class AlertHistory extends StatelessWidget {
       children: <Widget>[
         FlatButton(
           child: Text('Alert History'),
-          color: Colors.blue,
+          color: Colors.green,
           onPressed: () {/** */},
         ),
         FlatButton(
           child: Text('Alerts Set'),
-          color: Colors.blue,
+          color: Colors.green,
           onPressed: () {/** */},
         ),
       ],
