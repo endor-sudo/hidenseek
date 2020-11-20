@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'title.dart';
 import 'footer.dart';
 import 'scan.dart';
+import 'auth.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -11,6 +13,12 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String emailAddr = "";
   String alertText = "";
+
+  @override
+  void initState() {
+    super.initState();
+    signOutGoogle();
+  }
 
   void setEmail(String emailInput) {
     //write validation
@@ -23,16 +31,23 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Column(
-          children: <Widget>[
-            Expanded(
-                child: Padding(
-                    padding: const EdgeInsets.all(20.0), child: TitleWidget())),
-            EmailField(this.setEmail),
-            EmailSubmitionWidget(this.alertText),
-            DesignedWidget(),
-            LoveMakingWidget(),
-          ],
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Expanded(
+                  flex: 0,
+                  child: Padding(
+                      padding: const EdgeInsets.all(100.0),
+                      child: TitleWidget())),
+              EmailField(this.setEmail),
+              //EmailSubmitionWidget(this.alertText),
+              DesignedWidget(),
+              LoveMakingWidget(),
+            ],
+          ),
         ),
         backgroundColor: Colors.black87);
   }
@@ -48,23 +63,57 @@ class EmailField extends StatefulWidget {
 }
 
 class _EmailFieldState extends State<EmailField> {
-  final controller = TextEditingController();
+  //made irrelevant by Firebase
+  //final controller = TextEditingController();
+  FirebaseUser user;
 
   @override
   void dispose() {
     super.dispose();
-    controller.dispose();
+    //made irrelevant by Firebase
+    //controller.dispose();
   }
 
   Future<void> click() async {
-    widget.callback(controller.text);
-    controller.clear();
+    //made irrelevant by Firebase
+    //widget.callback(controller.text);
+    //controller.clear();
     await Future.delayed(Duration(seconds: 1));
-    Navigator.push(context, MaterialPageRoute(builder: (context) => Scan()));
+    signInWithGoogle().then((user) => {
+          this.user = user,
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => Scan()))
+        });
+  }
+
+  Widget googleLoginButton() {
+    return OutlineButton(
+        onPressed: this.click,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(45)),
+        splashColor: Colors.green,
+        borderSide: BorderSide(color: Colors.grey),
+        child: Padding(
+            padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Image(image: AssetImage('assets/google_logo.png'), height: 35),
+                Padding(
+                  padding: EdgeInsets.only(left: 10),
+                  child: Text(
+                    'Sign in with Google',
+                    style: TextStyle(color: Colors.green, fontSize: 25),
+                  ),
+                )
+              ],
+            )));
   }
 
   @override
   Widget build(BuildContext context) {
+    //made irrelevant by Firebase
+    /*
     return TextField(
         controller: this.controller,
         style: TextStyle(color: Colors.green),
@@ -86,6 +135,8 @@ class _EmailFieldState extends State<EmailField> {
             ),
             filled: false, //fill???
             fillColor: Colors.greenAccent));
+    */
+    return googleLoginButton();
   }
 }
 

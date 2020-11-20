@@ -64,7 +64,7 @@ class _RadarStillState extends State<RadarStill> {
     flutterBlue.stopScan();
     //sleep(const Duration(seconds: 10));
     */
-
+    widget.flutterBlue.stopScan();
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => DevFound(widget.devices)));
   }
@@ -106,12 +106,12 @@ class AlertHistory extends StatelessWidget {
   Widget build(BuildContext context) {
     return ButtonBar(
       children: <Widget>[
-        FlatButton(
+        RaisedButton(
           child: Text('Alert History'),
           color: Colors.green,
           onPressed: () {/** */},
         ),
-        FlatButton(
+        RaisedButton(
           child: Text('Alerts Set'),
           color: Colors.green,
           onPressed: () {/** */},

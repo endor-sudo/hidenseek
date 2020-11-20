@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "615600734227",
+    "firebase_url": "https://hidenseek-7bd3c.firebaseio.com",
+    "project_id": "hidenseek-7bd3c",
+    "storage_bucket": "hidenseek-7bd3c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:615600734227:android:7f7c522aa72f80132affe6",
+        "android_client_info": {
+          "package_name": "com.example.hide_n_seek"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "615600734227-2sjoq7j1a4rbe0bn2190unc3atk2u1ul.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.hide_n_seek",
+            "certificate_hash": "7e9675658bf65ab20b5d94e8e5d11892e06fb994"
+          }
+        },
+        {
+          "client_id": "615600734227-m01at6cu5n8ucq0fb78afup7334kkou0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBM4psWw42DS2iZURlK3gOjaJfiEq1Ksgs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "615600734227-m01at6cu5n8ucq0fb78afup7334kkou0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

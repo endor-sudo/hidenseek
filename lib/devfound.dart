@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'title.dart';
 import 'footer.dart';
+import 'database.dart';
 
 class DevFound extends StatefulWidget {
   final List<BluetoothDevice> devices;
@@ -24,7 +25,7 @@ class _DevFoundState extends State<DevFound> {
           DesignedWidget(),
           LoveMakingWidget()
         ]),
-        backgroundColor: Colors.black87);
+        backgroundColor: Colors.black);
   }
 }
 
@@ -38,17 +39,81 @@ class DevList extends StatefulWidget {
 class _DevListState extends State<DevList> {
   @override
   Widget build(BuildContext context) {
-    return _buildListViewOfDevices(widget.devices);
+    return _buildListViewOfDevices(widget.devices, context);
   }
 }
 
-ListView _buildListViewOfDevices(final List<BluetoothDevice> devices) {
+ListView _buildListViewOfDevices(
+    final List<BluetoothDevice> devices, BuildContext context) {
   List<Container> containers = new List<Container>();
+
+  void popup(BluetoothDevice device, BuildContext context, String customText) {
+    AlertDialog alert = AlertDialog(
+      title: Text(
+        "Are you sure you want to " + customText + " this device?",
+        style: TextStyle(color: Colors.green),
+      ),
+      content: Text(device.id.toString()),
+      actions: [
+        FlatButton(
+          color: Colors.green,
+          child: Text(
+            'Yes',
+            style: TextStyle(color: Colors.white),
+          ),
+          onPressed: () => saveBlueDevice(device, customText, context),
+        ),
+        FlatButton(
+          color: Colors.green,
+          child: Text(
+            'No',
+            style: TextStyle(color: Colors.white),
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+      elevation: 24.9,
+      backgroundColor: Colors.black,
+    );
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  List<Widget> alertButtonsFunc(BluetoothDevice device, BuildContext context) {
+    List<Widget> alertButtons = new List<Widget>();
+    alertButtons.add(
+      FlatButton(
+        color: Colors.green,
+        child: Text(
+          'Hide',
+          style: TextStyle(color: Colors.white),
+        ),
+        onPressed: () => popup(device, context, "hide"),
+      ),
+    );
+    alertButtons.add(
+      FlatButton(
+        color: Colors.green,
+        child: Text(
+          'Seek',
+          style: TextStyle(color: Colors.white),
+        ),
+        onPressed: () => popup(device, context, "seek"),
+      ),
+    );
+    return alertButtons;
+  }
+
   for (BluetoothDevice device in devices) {
-    containers.add(
-      Container(
-        height: 50,
-        child: Row(
+    containers.add(Container(
+      child: ExpansionTile(
+        title: Row(
           children: <Widget>[
             Expanded(
               child: Column(
@@ -57,21 +122,16 @@ ListView _buildListViewOfDevices(final List<BluetoothDevice> devices) {
                       style: TextStyle(color: Colors.green)),
                   Text(device.id.toString(),
                       style: TextStyle(color: Colors.green)),
+                  Text(device.type.toString(),
+                      style: TextStyle(color: Colors.green)),
                 ],
               ),
             ),
-            FlatButton(
-              color: Colors.green,
-              child: Text(
-                'Alert',
-                style: TextStyle(color: Colors.white),
-              ),
-              onPressed: () {},
-            ),
           ],
         ),
+        children: alertButtonsFunc(device, context),
       ),
-    );
+    ));
   }
 
   return ListView(
