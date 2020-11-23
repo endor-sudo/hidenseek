@@ -82,7 +82,7 @@ class _EmailFieldState extends State<EmailField> {
     signInWithGoogle().then((user) => {
           this.user = user,
           Navigator.push(
-              context, MaterialPageRoute(builder: (context) => Scan()))
+              context, MaterialPageRoute(builder: (context) => Scan(user)))
         });
   }
 

@@ -26,3 +26,23 @@ void saveBlueDevice(
     log('------------------------------------->' + e.toString());
   }
 }
+
+Future<List<Map<String, dynamic>>> gelAllAlerts() async {
+  DataSnapshot dataSnapshot =
+      await databaseReference.child('btdevices/').once();
+  List<Map<String, dynamic>> deviceAlerts = [];
+  if (dataSnapshot.value != null) {
+    dataSnapshot.value.forEach((key, value) => {
+          deviceAlerts.add({
+            'id': value['id'],
+            'name': value['name'],
+            'type': value['type'],
+            'alert': value['alert']
+          }),
+          log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + value['id']),
+          log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + value['name']),
+          log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + value['type']),
+        });
+  }
+  return deviceAlerts;
+}

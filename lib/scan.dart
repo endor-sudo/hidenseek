@@ -1,15 +1,24 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'title.dart';
 import 'footer.dart';
 import 'devfound.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'alertset.dart';
 
 class Scan extends StatefulWidget {
+  final FirebaseUser user;
+  final FlutterBlue flutterBlue = FlutterBlue.instance;
+  Scan(this.user);
   @override
-  _ScanState createState() => _ScanState();
+  _ScanState createState() => _ScanState(user, flutterBlue);
 }
 
 class _ScanState extends State<Scan> {
+  FirebaseUser user;
+  FlutterBlue flutterBlue;
+
+  _ScanState(this.user, this.flutterBlue);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,19 +27,22 @@ class _ScanState extends State<Scan> {
             Expanded(
                 child: Padding(
                     padding: const EdgeInsets.all(20.0), child: TitleWidget())),
-            RadarStill(),
-            AlertHistory(),
+            UserWidget(user),
+            RadarStill(flutterBlue),
+            AlertSection(flutterBlue),
             DesignedWidget(),
             LoveMakingWidget(),
           ],
         ),
-        backgroundColor: Colors.black87);
+        backgroundColor: Colors.black);
   }
 }
 
 class RadarStill extends StatefulWidget {
-  final FlutterBlue flutterBlue = FlutterBlue.instance;
   final List<BluetoothDevice> devices = new List<BluetoothDevice>();
+  final FlutterBlue flutterBlue;
+
+  RadarStill(this.flutterBlue);
 
   @override
   _RadarStillState createState() => _RadarStillState();
@@ -101,7 +113,21 @@ class _RadarStillState extends State<RadarStill> {
   }
 }
 
-class AlertHistory extends StatelessWidget {
+class AlertSection extends StatefulWidget {
+  final FlutterBlue flutterBlue;
+
+  AlertSection(this.flutterBlue);
+  @override
+  _AlertSectionState createState() => _AlertSectionState();
+}
+
+class _AlertSectionState extends State<AlertSection> {
+  click(BuildContext context) {
+    widget.flutterBlue.stopScan();
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => AlertsSetHistory()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return ButtonBar(
@@ -114,10 +140,24 @@ class AlertHistory extends StatelessWidget {
         RaisedButton(
           child: Text('Alerts Set'),
           color: Colors.green,
-          onPressed: () {/** */},
+          onPressed: () => click(context),
         ),
       ],
       alignment: MainAxisAlignment.center,
+    );
+  }
+}
+
+class UserWidget extends StatelessWidget {
+  final FirebaseUser user;
+
+  UserWidget(this.user);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      'Welcome ' + user.displayName + '.',
+      style: TextStyle(color: Colors.green),
     );
   }
 }
