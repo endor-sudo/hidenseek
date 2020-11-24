@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hide_n_seek/notification.dart';
 import 'alerthistory.dart';
 import 'title.dart';
 import 'footer.dart';
@@ -82,10 +83,13 @@ class _RadarStillState extends State<RadarStill> {
         MaterialPageRoute(builder: (context) => DevFound(widget.devices)));
   }
 
-  void checkForNotis() async {
-    while (true) {
-      //got make a class for Device
-    }
+  void checkForNotis() {
+    scheduleAlarm('Espero que funcione');
+    //while (true) {
+    //gotta make a class for Device
+    //hide
+    //seek
+    //}
   }
 
   @override
