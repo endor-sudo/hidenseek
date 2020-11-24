@@ -44,5 +44,6 @@ Future<List<Map<String, dynamic>>> gelAllAlerts() async {
           log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + value['type']),
         });
   }
+  log(deviceAlerts.length.toString());
   return deviceAlerts;
 }

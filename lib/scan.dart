@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'alerthistory.dart';
 import 'title.dart';
 import 'footer.dart';
 import 'devfound.dart';
@@ -76,9 +77,15 @@ class _RadarStillState extends State<RadarStill> {
     flutterBlue.stopScan();
     //sleep(const Duration(seconds: 10));
     */
-    widget.flutterBlue.stopScan();
+    //widget.flutterBlue.stopScan();
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => DevFound(widget.devices)));
+  }
+
+  void checkForNotis() async {
+    while (true) {
+      //got make a class for Device
+    }
   }
 
   @override
@@ -98,6 +105,8 @@ class _RadarStillState extends State<RadarStill> {
       }
     });
     widget.flutterBlue.startScan();
+    //Check whether a notification should be sent
+    checkForNotis();
   }
 
   @override
@@ -123,7 +132,7 @@ class AlertSection extends StatefulWidget {
 
 class _AlertSectionState extends State<AlertSection> {
   click(BuildContext context) {
-    widget.flutterBlue.stopScan();
+    //widget.flutterBlue.stopScan();
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => AlertsSetHistory()));
   }
@@ -135,7 +144,11 @@ class _AlertSectionState extends State<AlertSection> {
         RaisedButton(
           child: Text('Alert History'),
           color: Colors.green,
-          onPressed: () {/** */},
+          onPressed: () {
+            //widget.flutterBlue.stopScan();
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => AlertHistory()));
+          },
         ),
         RaisedButton(
           child: Text('Alerts Set'),

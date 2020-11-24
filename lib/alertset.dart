@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'database.dart';
 import 'title.dart';
@@ -9,6 +11,43 @@ class AlertsSetHistory extends StatefulWidget {
 }
 
 class _AlertsSetHistoryState extends State<AlertsSetHistory> {
+  List<Container> containers = new List<Container>();
+
+  void loadAlerts() {
+    gelAllAlerts().then((deviceAlerts) {
+      for (Map<String, dynamic> alert in deviceAlerts) {
+        containers.add(Container(
+          child: ExpansionTile(
+            title: Row(
+              children: <Widget>[
+                Expanded(
+                  child: Column(
+                    children: <Widget>[
+                      Text(alert['name'],
+                          style: TextStyle(color: Colors.green)),
+                      Text(alert['id'], style: TextStyle(color: Colors.green)),
+                      Text(alert['type'],
+                          style: TextStyle(color: Colors.green)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            //children: ,
+          ),
+        ));
+      }
+      log(containers.length.toString());
+      this.setState(() {});
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadAlerts();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,7 +55,7 @@ class _AlertsSetHistoryState extends State<AlertsSetHistory> {
           Expanded(
               child: Padding(
                   padding: const EdgeInsets.all(20.0), child: TitleWidget())),
-          Expanded(child: AlertsSetList()),
+          Expanded(child: AlertsSetList(containers)),
           DesignedWidget(),
           LoveMakingWidget()
         ]),
@@ -25,41 +64,19 @@ class _AlertsSetHistoryState extends State<AlertsSetHistory> {
 }
 
 class AlertsSetList extends StatefulWidget {
+  final List<Container> containers;
+
+  AlertsSetList(this.containers);
+
   @override
-  _AlertsSetListState createState() => _AlertsSetListState();
+  _AlertsSetListState createState() => _AlertsSetListState(containers);
 }
 
 class _AlertsSetListState extends State<AlertsSetList> {
-  List<Container> containers = new List<Container>();
+  List<Container> containers;
+  _AlertsSetListState(this.containers);
   @override
   Widget build(BuildContext context) {
-    gelAllAlerts().then((deviceAlerts) => {
-          for (Map<String, dynamic> alert in deviceAlerts)
-            {
-              alert.forEach((k, v) => containers.add(Container(
-                    child: ExpansionTile(
-                      title: Row(
-                        children: <Widget>[
-                          Expanded(
-                            child: Column(
-                              children: <Widget>[
-                                Text(alert['name'],
-                                    style: TextStyle(color: Colors.green)),
-                                Text(alert['id'],
-                                    style: TextStyle(color: Colors.green)),
-                                Text(alert['type'],
-                                    style: TextStyle(color: Colors.green)),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      //children: ,
-                    ),
-                  )))
-            },
-          this.setState(() {})
-        });
     return ListView(
       padding: const EdgeInsets.all(8),
       children: <Widget>[
