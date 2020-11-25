@@ -86,6 +86,7 @@ ListView _buildListViewOfDevices(
   }
 
   List<Widget> alertButtonsFunc(BluetoothDevice device, BuildContext context) {
+    //check whether the device already has an alert set and disable the button hide and seek accordingly
     List<Widget> alertButtons = new List<Widget>();
     alertButtons.add(
       FlatButton(

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hide_n_seek/notification.dart';
@@ -7,6 +9,7 @@ import 'footer.dart';
 import 'devfound.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'alertset.dart';
+import 'database.dart';
 
 class Scan extends StatefulWidget {
   final FirebaseUser user;
@@ -83,13 +86,41 @@ class _RadarStillState extends State<RadarStill> {
         MaterialPageRoute(builder: (context) => DevFound(widget.devices)));
   }
 
-  void checkForNotis() {
-    scheduleAlarm('Espero que funcione');
-    //while (true) {
-    //gotta make a class for Device
-    //hide
-    //seek
-    //}
+  Future<void> checkForNotis() async {
+    while (true) {
+      final List<String> devicesInAlert = new List<String>();
+      final List<String> devicesScanned = new List<String>();
+
+      await Future.delayed(Duration(seconds: 10));
+
+      widget.flutterBlue.scanResults.listen((List<ScanResult> results) {
+        for (ScanResult result in results) {
+          setState(() {
+            devicesScanned.add(result.device.id.toString());
+            //log('IdScanned: ' + result.device.id.toString());
+          });
+        }
+      });
+
+      await getAllAlerts().then((deviceAlerts) {
+        for (Map<String, dynamic> alert in deviceAlerts) {
+          devicesInAlert.add(alert['id']);
+          log('IdAlert: ' + alert['id']);
+        }
+      });
+      //gotta make a class for Device
+      //log(devicesScanned.length.toString());
+      //log(devicesInAlert.length.toString());
+      for (String Scan_id in devicesScanned) {
+        for (String Alert_id in devicesInAlert) {
+          //log(Scan_id + '--------' + Alert_id);
+          if (Scan_id == Alert_id) {
+            scheduleAlarm(Scan_id.toString() + ' == ' + Alert_id.toString());
+            saveAlert(Alert_id);
+          }
+        }
+      }
+    }
   }
 
   @override

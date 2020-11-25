@@ -27,7 +27,32 @@ void saveBlueDevice(
   }
 }
 
-Future<List<Map<String, dynamic>>> gelAllAlerts() async {
+Map<String, dynamic> alertToJson(String id) {
+  return {
+    'id': id,
+    'time': DateTime.now().year.toString() +
+        '/' +
+        DateTime.now().month.toString() +
+        '/' +
+        DateTime.now().day.toString() +
+        '@' +
+        DateTime.now().hour.toString() +
+        ':' +
+        DateTime.now().minute.toString() +
+        ':' +
+        DateTime.now().second.toString(),
+  };
+}
+
+void saveAlert(String id) {
+  try {
+    databaseReference.child('deviceAlerts/').push().set(alertToJson(id));
+  } catch (e) {
+    log('------------------------------------->' + e.toString());
+  }
+}
+
+Future<List<Map<String, dynamic>>> getAllAlerts() async {
   DataSnapshot dataSnapshot =
       await databaseReference.child('btdevices/').once();
   List<Map<String, dynamic>> deviceAlerts = [];
@@ -39,11 +64,11 @@ Future<List<Map<String, dynamic>>> gelAllAlerts() async {
             'type': value['type'],
             'alert': value['alert']
           }),
-          log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + value['id']),
-          log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + value['name']),
-          log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + value['type']),
+          //log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + value['id']),
+          //log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + value['name']),
+          //log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + value['type']),
         });
   }
-  log(deviceAlerts.length.toString());
+  //log(deviceAlerts.length.toString());
   return deviceAlerts;
 }

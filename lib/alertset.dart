@@ -14,7 +14,7 @@ class _AlertsSetHistoryState extends State<AlertsSetHistory> {
   List<Container> containers = new List<Container>();
 
   void loadAlerts() {
-    gelAllAlerts().then((deviceAlerts) {
+    getAllAlerts().then((deviceAlerts) {
       for (Map<String, dynamic> alert in deviceAlerts) {
         containers.add(Container(
           child: ExpansionTile(
@@ -37,7 +37,7 @@ class _AlertsSetHistoryState extends State<AlertsSetHistory> {
           ),
         ));
       }
-      log(containers.length.toString());
+      //log(containers.length.toString());
       this.setState(() {});
     });
   }
