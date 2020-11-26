@@ -87,12 +87,17 @@ class _RadarStillState extends State<RadarStill> {
   }
 
   Future<void> checkForNotis() async {
+    int notiId = 0;
+    List<String> devicesAlertedLast = new List<String>();
     while (true) {
       final List<String> devicesInAlert = new List<String>();
       final List<String> devicesScanned = new List<String>();
+      final List<String> devicesToAlert = new List<String>();
 
       await Future.delayed(Duration(seconds: 10));
 
+      //the phone keeps getting notifications after the blutooth is turned off
+      //stop scan? create another instance?
       widget.flutterBlue.scanResults.listen((List<ScanResult> results) {
         for (ScanResult result in results) {
           setState(() {
@@ -105,7 +110,6 @@ class _RadarStillState extends State<RadarStill> {
       await getAllAlerts().then((deviceAlerts) {
         for (Map<String, dynamic> alert in deviceAlerts) {
           devicesInAlert.add(alert['id']);
-          log('IdAlert: ' + alert['id']);
         }
       });
       //gotta make a class for Device
@@ -115,11 +119,38 @@ class _RadarStillState extends State<RadarStill> {
         for (String Alert_id in devicesInAlert) {
           //log(Scan_id + '--------' + Alert_id);
           if (Scan_id == Alert_id) {
-            scheduleAlarm(Scan_id.toString() + ' == ' + Alert_id.toString());
-            saveAlert(Alert_id);
+            for (String id in devicesAlertedLast) {
+              log('1 devicesAlertedLastNoIF');
+              log('2 ' + id.toString() + 'IF' + Scan_id);
+            }
+            if (!devicesAlertedLast.contains(Scan_id)) {
+              devicesToAlert.add(Scan_id);
+              await scheduleAlarm(
+                  Scan_id.toString() + ' == ' + Alert_id.toString(), notiId);
+              await saveAlert(Alert_id);
+              ++notiId;
+              log('3 ' +
+                  devicesAlertedLast.contains(Scan_id).toString() +
+                  ' ao contrario1');
+            }
           }
         }
       }
+      //program when a device goes out of range and comes back again(dependent on //the phone keeps getting notifications after the blutooth is turned off //stop scan? create another instance?)
+      for (String id in devicesAlertedLast) {
+        log('4 devicesAlertedLastAntesDoClone');
+        log('5 ' + id.toString());
+      }
+      devicesAlertedLast = List.from(devicesAlertedLast)
+        ..addAll(devicesToAlert);
+      log('6 devicesAlertedLastDepoisDoClone');
+      for (String id in devicesAlertedLast) {
+        log('7 ' + id.toString());
+      }
+      log('8 ' +
+          devicesAlertedLast.contains('4A:85:46:14:08:02').toString() +
+          ' ao contrario2');
+      log('9 Fim_________________________');
     }
   }
 

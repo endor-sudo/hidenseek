@@ -44,7 +44,7 @@ Map<String, dynamic> alertToJson(String id) {
   };
 }
 
-void saveAlert(String id) {
+Future<void> saveAlert(String id) async {
   try {
     databaseReference.child('deviceAlerts/').push().set(alertToJson(id));
   } catch (e) {
@@ -63,6 +63,25 @@ Future<List<Map<String, dynamic>>> getAllAlerts() async {
             'name': value['name'],
             'type': value['type'],
             'alert': value['alert']
+          }),
+          //log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + value['id']),
+          //log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + value['name']),
+          //log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + value['type']),
+        });
+  }
+  //log(deviceAlerts.length.toString());
+  return deviceAlerts;
+}
+
+Future<List<Map<String, dynamic>>> getAllAlertsHistory() async {
+  DataSnapshot dataSnapshot =
+      await databaseReference.child('deviceAlerts/').once();
+  List<Map<String, dynamic>> deviceAlerts = [];
+  if (dataSnapshot.value != null) {
+    dataSnapshot.value.forEach((key, value) => {
+          deviceAlerts.add({
+            'id': value['id'],
+            'time': value['time'],
           }),
           //log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + value['id']),
           //log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + value['name']),

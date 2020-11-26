@@ -26,7 +26,7 @@ class TimeZone {
   }
 }
 
-void scheduleAlarm(String setalert) async {
+Future<void> scheduleAlarm(String setalert, int id) async {
   final timeZone = TimeZone();
   DateTime dateTime = DateTime.now().add(Duration(seconds: 1));
   // The device's timezone.
@@ -45,7 +45,7 @@ void scheduleAlarm(String setalert) async {
   var platformChannelSpecifics =
       NotificationDetails(android: androidPlatformChannelSpecifics);
   await flutterLocalNotificationsPlugin.zonedSchedule(
-    0,
+    id,
     'HideNSeek',
     setalert,
     scheduledDate,

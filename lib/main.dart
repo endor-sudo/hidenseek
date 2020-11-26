@@ -64,3 +64,12 @@ class MyApp extends StatelessWidget {
     return MyHomePage();
   }
 }
+
+//organize scans, create class for device and alert
+//sort alerthistory
+//device goes out of and into range
+//the phone keeps getting notifications after the blutooth is turned off
+//stop scan? create another instance?
+//custom device name
+//organize database for multiple users
+//graphically organize/fix error on landscape
