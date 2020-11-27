@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hide_n_seek/main.dart';
 import 'package:hide_n_seek/notification.dart';
 import 'alerthistory.dart';
 import 'title.dart';
@@ -54,6 +55,12 @@ class RadarStill extends StatefulWidget {
 }
 
 class _RadarStillState extends State<RadarStill> {
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   _addDeviceTolist(final BluetoothDevice device) {
     if (!widget.devices.contains(device)) {
       setState(() {
@@ -83,7 +90,7 @@ class _RadarStillState extends State<RadarStill> {
     */
     //widget.flutterBlue.stopScan();
     Navigator.push(context,
-        MaterialPageRoute(builder: (context) => DevFound(widget.devices)));
+        MaterialPageRoute(builder: (context) => MyAppLoading(widget.devices)));
   }
 
   Future<void> checkForNotis() async {
@@ -240,3 +247,73 @@ class UserWidget extends StatelessWidget {
     );
   }
 }
+
+/*Future<void> checkForNotis() async {
+    int notiId = 0;
+    final List<DeviceAlert> devicesInAlert = new List<DeviceAlert>();
+
+    while (true) {
+      final FlutterBlue flutterBlue = FlutterBlue.instance;
+      final List<Device> devicesScanned = new List<Device>();
+      final List<BluetoothDevice> devicesToList = new List<BluetoothDevice>();
+
+      await Future.delayed(Duration(seconds: 5));
+
+      //adds scanned devices to devicesScanned
+      flutterBlue.scanResults.listen((List<ScanResult> results) {
+        for (ScanResult result in results) {
+          setState(() {
+            devicesScanned.add(Device(result.device.id.toString(),
+                result.device.name.toString(), result.device.type.toString()));
+            log(result.device.id.toString());
+            devicesToList.add(result.device);
+          });
+        }
+      });
+      flutterBlue.startScan();
+      //adds newly scanned device to devicesInAlert if it is new
+      await getAllAlerts().then((deviceAlerts) {
+        for (Map<String, dynamic> alert in deviceAlerts) {
+          for (DeviceAlert deviceAlert in devicesInAlert) {
+            if (deviceAlert.id != alert['id']) {
+              devicesInAlert.add(DeviceAlert(
+                  alert['id'], alert['name'], alert['type'], false, true));
+            }
+          }
+        }
+      });
+
+      //sets all devicesInAlert isInRange to True
+      for (DeviceAlert deviceInAlert in devicesInAlert) {
+        for (Device deviceScanned in devicesScanned) {
+          if (deviceInAlert.id == deviceScanned.id) {
+            deviceInAlert.isInRange = true;
+          }
+        }
+      }
+
+      //sends notifications according to devicesInAlert attributes
+      for (DeviceAlert deviceInAlert in devicesInAlert) {
+        if (deviceInAlert.alertType == 'seek' &&
+            deviceInAlert.wasInRange == false &&
+            deviceInAlert.isInRange == true) {
+          await scheduleAlarm(deviceInAlert.id.toString(), notiId);
+          await saveAlert(deviceInAlert.id);
+          ++notiId;
+          deviceInAlert.wasInRange = true;
+        } else if (deviceInAlert.alertType == 'hide' &&
+            deviceInAlert.wasInRange == true &&
+            deviceInAlert.isInRange == false) {
+          await scheduleAlarm(deviceInAlert.id.toString(), notiId);
+          await saveAlert(deviceInAlert.id);
+          ++notiId;
+          deviceInAlert.wasInRange = false;
+        }
+      }
+
+      actualdevicesToList = List.from(devicesToList);
+
+      await flutterBlue.stopScan();
+      log('9 Fim_________________________');
+    }
+  }*/

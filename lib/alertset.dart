@@ -31,7 +31,20 @@ class _AlertsSetHistoryState extends State<AlertsSetHistory> {
                 ),
               ],
             ),
-            //children: ,
+            children: <Widget>[
+              FlatButton(
+                color: Colors.green,
+                child: Text(
+                  'Delete Alert',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onPressed: () {
+                  setState(() {
+                    deleteAlert(alert['id']);
+                  });
+                },
+              ),
+            ],
           ),
         ));
       }

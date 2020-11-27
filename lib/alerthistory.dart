@@ -53,11 +53,37 @@ class _AlertHistoryState extends State<AlertHistory> {
           Expanded(
               child: Padding(
                   padding: const EdgeInsets.all(20.0), child: TitleWidget())),
+          ClearHistory(),
           Expanded(child: HistoryAlertsSetList(containers)),
           DesignedWidget(),
           LoveMakingWidget()
         ]),
         backgroundColor: Colors.black);
+  }
+}
+
+class ClearHistory extends StatefulWidget {
+  @override
+  _ClearHistoryState createState() => _ClearHistoryState();
+}
+
+class _ClearHistoryState extends State<ClearHistory> {
+  @override
+  Widget build(BuildContext context) {
+    return ButtonBar(
+      children: <Widget>[
+        RaisedButton(
+          child: Text('Clear History'),
+          color: Colors.green,
+          onPressed: () {
+            setState(() {
+              clearAllHistory();
+            });
+          },
+        )
+      ],
+      alignment: MainAxisAlignment.center,
+    );
   }
 }
 

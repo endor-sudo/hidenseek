@@ -20,6 +20,12 @@ class _MyHomePageState extends State<MyHomePage> {
     signOutGoogle();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    this.dispose();
+  }
+
   void setEmail(String emailInput) {
     //write validation
     this.emailAddr = emailInput;

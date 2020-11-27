@@ -91,3 +91,23 @@ Future<List<Map<String, dynamic>>> getAllAlertsHistory() async {
   //log(deviceAlerts.length.toString());
   return deviceAlerts;
 }
+
+Future<void> clearAllHistory() async {
+  await databaseReference.child('deviceAlerts/').remove();
+}
+
+Future<void> deleteAlert(String id) async {
+  DataSnapshot dataSnapshot =
+      await databaseReference.child('btdevices/').once();
+  dynamic entryID;
+  if (dataSnapshot.value != null) {
+    dataSnapshot.value.forEach((key, value) => {
+          if (value['id'] == id) {entryID = key}
+          //log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + value['id']),
+          //log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + value['name']),
+          //log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + value['type']),
+        });
+  }
+  await databaseReference.child('btdevices/' + entryID.toString()).remove();
+  //log(deviceAlerts.length.toString());
+}

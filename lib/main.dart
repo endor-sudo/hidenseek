@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_blue/flutter_blue.dart';
+import 'package:hide_n_seek/devfound.dart';
 import 'login.dart';
 import 'package:splashscreen/splashscreen.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -31,20 +33,24 @@ void main() async {
         primarySwatch: Colors.green,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyAppLoading()));
+      home: MyApp()));
 }
 
 class MyAppLoading extends StatefulWidget {
+  final List<BluetoothDevice> devices;
+  MyAppLoading(this.devices);
   @override
-  _MyAppStateLoading createState() => new _MyAppStateLoading();
+  _MyAppStateLoading createState() => new _MyAppStateLoading(devices);
 }
 
 class _MyAppStateLoading extends State<MyAppLoading> {
+  List<BluetoothDevice> devices;
+  _MyAppStateLoading(this.devices);
   @override
   Widget build(BuildContext context) {
     return new SplashScreen(
-        seconds: 8,
-        navigateAfterSeconds: new MyApp(),
+        seconds: 3,
+        navigateAfterSeconds: new DevFound(devices),
         title: new Text(
           'HideNSeek',
           style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
@@ -65,11 +71,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
-//organize scans, create class for device and alert
 //sort alerthistory
-//device goes out of and into range
-//the phone keeps getting notifications after the blutooth is turned off
-//stop scan? create another instance?
-//custom device name
 //organize database for multiple users
+
+//custom device name
 //graphically organize/fix error on landscape
