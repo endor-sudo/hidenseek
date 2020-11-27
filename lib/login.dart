@@ -38,23 +38,28 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Expanded(
-                  flex: 0,
-                  child: Padding(
-                      padding: const EdgeInsets.all(100.0),
-                      child: TitleWidget())),
-              EmailField(this.setEmail),
-              //EmailSubmitionWidget(this.alertText),
-              DesignedWidget(),
-              LoveMakingWidget(),
-            ],
-          ),
-        ),
+            child: Column(
+          children: <Widget>[
+            Expanded(
+                child: Padding(
+                    padding: const EdgeInsets.all(20), child: TitleWidget())),
+            Expanded(
+                child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Image.asset(
+                      'assets/radares.png',
+                      color: Colors.green,
+                    ))),
+            Expanded(
+                child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 100),
+                    child: EmailField(this.setEmail))),
+
+            //EmailSubmitionWidget(this.alertText),
+            DesignedWidget(),
+            LoveMakingWidget(),
+          ],
+        )),
         backgroundColor: Colors.black87);
   }
 }

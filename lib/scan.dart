@@ -7,24 +7,24 @@ import 'package:hide_n_seek/notification.dart';
 import 'alerthistory.dart';
 import 'title.dart';
 import 'footer.dart';
-import 'devfound.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'alertset.dart';
 import 'database.dart';
+import 'devices.dart';
 
 class Scan extends StatefulWidget {
   final FirebaseUser user;
-  final FlutterBlue flutterBlue = FlutterBlue.instance;
+  //final FlutterBlue flutterBlue = FlutterBlue.instance;
   Scan(this.user);
   @override
-  _ScanState createState() => _ScanState(user, flutterBlue);
+  _ScanState createState() => _ScanState(user);
 }
 
 class _ScanState extends State<Scan> {
   FirebaseUser user;
-  FlutterBlue flutterBlue;
+  //FlutterBlue flutterBlue;
 
-  _ScanState(this.user, this.flutterBlue);
+  _ScanState(this.user);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,8 +34,12 @@ class _ScanState extends State<Scan> {
                 child: Padding(
                     padding: const EdgeInsets.all(20.0), child: TitleWidget())),
             UserWidget(user),
-            RadarStill(flutterBlue),
-            AlertSection(flutterBlue),
+            RadarStill(user),
+            Expanded(
+                child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: AlertSection(user),
+            )),
             DesignedWidget(),
             LoveMakingWidget(),
           ],
@@ -46,15 +50,20 @@ class _ScanState extends State<Scan> {
 
 class RadarStill extends StatefulWidget {
   final List<BluetoothDevice> devices = new List<BluetoothDevice>();
-  final FlutterBlue flutterBlue;
+  //final FlutterBlue flutterBlue;
+  final FirebaseUser user;
 
-  RadarStill(this.flutterBlue);
+  RadarStill(this.user);
 
   @override
-  _RadarStillState createState() => _RadarStillState();
+  _RadarStillState createState() => _RadarStillState(user);
 }
 
 class _RadarStillState extends State<RadarStill> {
+  final FirebaseUser user;
+  _RadarStillState(this.user);
+
+  @override
   void setState(fn) {
     if (mounted) {
       super.setState(fn);
@@ -89,74 +98,88 @@ class _RadarStillState extends State<RadarStill> {
     //sleep(const Duration(seconds: 10));
     */
     //widget.flutterBlue.stopScan();
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => MyAppLoading(widget.devices)));
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => MyAppLoading(widget.devices, user)));
   }
 
   Future<void> checkForNotis() async {
     int notiId = 0;
-    List<String> devicesAlertedLast = new List<String>();
+    final List<DeviceAlert> devicesInAlert = new List<DeviceAlert>();
+    final FlutterBlue flutterBlue = FlutterBlue.instance;
+
     while (true) {
-      final List<String> devicesInAlert = new List<String>();
-      final List<String> devicesScanned = new List<String>();
-      final List<String> devicesToAlert = new List<String>();
+      final List<Device> devicesScanned = new List<Device>();
+      final List<BluetoothDevice> devicesToList = new List<BluetoothDevice>();
 
-      await Future.delayed(Duration(seconds: 10));
-
-      //the phone keeps getting notifications after the blutooth is turned off
-      //stop scan? create another instance?
-      widget.flutterBlue.scanResults.listen((List<ScanResult> results) {
+      //adds scanned devices to devicesScanned
+      flutterBlue.scanResults.listen((results) {
         for (ScanResult result in results) {
-          setState(() {
-            devicesScanned.add(result.device.id.toString());
-            //log('IdScanned: ' + result.device.id.toString());
-          });
+          if (!devicesScanned.contains(result)) {
+            setState(() {
+              devicesScanned.add(Device(
+                  result.device.id.toString(),
+                  result.device.name.toString(),
+                  result.device.type.toString()));
+              log(result.device.id.toString());
+              devicesToList.add(result.device);
+            });
+          }
         }
       });
+      await Future.delayed(Duration(seconds: 5));
+      log(devicesScanned.length.toString());
 
-      await getAllAlerts().then((deviceAlerts) {
+      //adds newly scanned device to devicesInAlert if it is new
+      await getAllAlerts(widget.user).then((deviceAlerts) {
         for (Map<String, dynamic> alert in deviceAlerts) {
-          devicesInAlert.add(alert['id']);
-        }
-      });
-      //gotta make a class for Device
-      //log(devicesScanned.length.toString());
-      //log(devicesInAlert.length.toString());
-      for (String Scan_id in devicesScanned) {
-        for (String Alert_id in devicesInAlert) {
-          //log(Scan_id + '--------' + Alert_id);
-          if (Scan_id == Alert_id) {
-            for (String id in devicesAlertedLast) {
-              log('1 devicesAlertedLastNoIF');
-              log('2 ' + id.toString() + 'IF' + Scan_id);
-            }
-            if (!devicesAlertedLast.contains(Scan_id)) {
-              devicesToAlert.add(Scan_id);
-              await scheduleAlarm(
-                  Scan_id.toString() + ' == ' + Alert_id.toString(), notiId);
-              await saveAlert(Alert_id);
-              ++notiId;
-              log('3 ' +
-                  devicesAlertedLast.contains(Scan_id).toString() +
-                  ' ao contrario1');
+          for (Device deviceScanned in devicesScanned) {
+            if (deviceScanned.id != alert['id']) {
+              //fix unnecessary overpopulation
+              devicesInAlert.add(DeviceAlert(
+                  alert['id'], alert['name'], alert['alert'], false, true));
+              log(alert['type']);
             }
           }
         }
+      });
+
+      log(devicesInAlert.length.toString());
+
+      //sets all devicesInAlert isInRange to True
+      for (DeviceAlert deviceInAlert in devicesInAlert) {
+        for (Device deviceScanned in devicesScanned) {
+          if (deviceInAlert.id == deviceScanned.id) {
+            deviceInAlert.isInRange = true;
+          }
+        }
       }
-      //program when a device goes out of range and comes back again(dependent on //the phone keeps getting notifications after the blutooth is turned off //stop scan? create another instance?)
-      for (String id in devicesAlertedLast) {
-        log('4 devicesAlertedLastAntesDoClone');
-        log('5 ' + id.toString());
+
+      //sends notifications according to devicesInAlert attributes
+      for (DeviceAlert deviceInAlert in devicesInAlert) {
+        if (deviceInAlert.alertType == 'seek' &&
+            deviceInAlert.wasInRange == false &&
+            deviceInAlert.isInRange == true) {
+          await scheduleAlarm(deviceInAlert.id.toString(), notiId);
+          await saveAlert(deviceInAlert.id, widget.user);
+          ++notiId;
+          deviceInAlert.wasInRange = true;
+        } else if (deviceInAlert.alertType == 'hide' &&
+            deviceInAlert.wasInRange == true &&
+            deviceInAlert.isInRange == false) {
+          await scheduleAlarm(deviceInAlert.id.toString(), notiId);
+          await saveAlert(deviceInAlert.id, widget.user);
+          ++notiId;
+          deviceInAlert.wasInRange = false;
+        }
       }
-      devicesAlertedLast = List.from(devicesAlertedLast)
-        ..addAll(devicesToAlert);
-      log('6 devicesAlertedLastDepoisDoClone');
-      for (String id in devicesAlertedLast) {
-        log('7 ' + id.toString());
-      }
-      log('8 ' +
-          devicesAlertedLast.contains('4A:85:46:14:08:02').toString() +
-          ' ao contrario2');
+
+      actualdevicesToList = List.from(devicesToList);
+
+      flutterBlue.startScan(timeout: Duration(seconds: 4));
+
+      await Future.delayed(Duration(seconds: 2));
       log('9 Fim_________________________');
     }
   }
@@ -164,7 +187,9 @@ class _RadarStillState extends State<RadarStill> {
   @override
   void initState() {
     //todo: implement initState
+
     super.initState();
+    /*
     widget.flutterBlue.connectedDevices
         .asStream()
         .listen((List<BluetoothDevice> devices) {
@@ -179,6 +204,7 @@ class _RadarStillState extends State<RadarStill> {
     });
     widget.flutterBlue.startScan();
     //Check whether a notification should be sent
+    */
     checkForNotis();
   }
 
@@ -188,7 +214,10 @@ class _RadarStillState extends State<RadarStill> {
       child: GestureDetector(
         onTap: this.click,
         child: Container(
-          child: Image.asset('assets/images/radar.jpg'),
+          child: Image.asset('assets/radar.png'),
+          height: 200,
+          width: 200,
+          color: Colors.black,
         ),
       ),
     );
@@ -196,9 +225,10 @@ class _RadarStillState extends State<RadarStill> {
 }
 
 class AlertSection extends StatefulWidget {
-  final FlutterBlue flutterBlue;
+  //final FlutterBlue flutterBlue;
+  final FirebaseUser user;
 
-  AlertSection(this.flutterBlue);
+  AlertSection(this.user);
   @override
   _AlertSectionState createState() => _AlertSectionState();
 }
@@ -206,8 +236,8 @@ class AlertSection extends StatefulWidget {
 class _AlertSectionState extends State<AlertSection> {
   click(BuildContext context) {
     //widget.flutterBlue.stopScan();
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => AlertsSetHistory()));
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => AlertsSetHistory(widget.user)));
   }
 
   @override
@@ -219,8 +249,10 @@ class _AlertSectionState extends State<AlertSection> {
           color: Colors.green,
           onPressed: () {
             //widget.flutterBlue.stopScan();
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => AlertHistory()));
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => AlertHistory(widget.user)));
           },
         ),
         RaisedButton(
@@ -251,26 +283,28 @@ class UserWidget extends StatelessWidget {
 /*Future<void> checkForNotis() async {
     int notiId = 0;
     final List<DeviceAlert> devicesInAlert = new List<DeviceAlert>();
+    final FlutterBlue flutterBlue = FlutterBlue.instance;
 
     while (true) {
-      final FlutterBlue flutterBlue = FlutterBlue.instance;
       final List<Device> devicesScanned = new List<Device>();
       final List<BluetoothDevice> devicesToList = new List<BluetoothDevice>();
 
-      await Future.delayed(Duration(seconds: 5));
+      flutterBlue.startScan(timeout: Duration(seconds: 4));
 
       //adds scanned devices to devicesScanned
-      flutterBlue.scanResults.listen((List<ScanResult> results) {
+      flutterBlue.scanResults.listen((results) {
         for (ScanResult result in results) {
-          setState(() {
-            devicesScanned.add(Device(result.device.id.toString(),
-                result.device.name.toString(), result.device.type.toString()));
-            log(result.device.id.toString());
-            devicesToList.add(result.device);
-          });
+          if (!devicesScanned.contains(device)) {
+            setState(() {
+              devicesScanned.add(Device(result.device.id.toString(),
+                  result.device.name.toString(), result.device.type.toString()));
+              log(result.device.id.toString());
+              devicesToList.add(result.device);
+            });
+          }
         }
       });
-      flutterBlue.startScan();
+
       //adds newly scanned device to devicesInAlert if it is new
       await getAllAlerts().then((deviceAlerts) {
         for (Map<String, dynamic> alert in deviceAlerts) {
@@ -314,6 +348,8 @@ class UserWidget extends StatelessWidget {
       actualdevicesToList = List.from(devicesToList);
 
       await flutterBlue.stopScan();
+
+      await Future.delayed(Duration(seconds: 90));
       log('9 Fim_________________________');
     }
   }*/

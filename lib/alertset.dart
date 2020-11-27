@@ -1,9 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'database.dart';
 import 'title.dart';
 import 'footer.dart';
 
 class AlertsSetHistory extends StatefulWidget {
+  final FirebaseUser user;
+  AlertsSetHistory(this.user);
   @override
   _AlertsSetHistoryState createState() => _AlertsSetHistoryState();
 }
@@ -12,7 +15,7 @@ class _AlertsSetHistoryState extends State<AlertsSetHistory> {
   List<Container> containers = new List<Container>();
 
   void loadAlerts() {
-    getAllAlerts().then((deviceAlerts) {
+    getAllAlerts(widget.user).then((deviceAlerts) {
       for (Map<String, dynamic> alert in deviceAlerts) {
         containers.add(Container(
           child: ExpansionTile(
@@ -40,7 +43,7 @@ class _AlertsSetHistoryState extends State<AlertsSetHistory> {
                 ),
                 onPressed: () {
                   setState(() {
-                    deleteAlert(alert['id']);
+                    deleteAlert(alert['id'], widget.user);
                   });
                 },
               ),

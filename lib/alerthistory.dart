@@ -1,9 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'title.dart';
 import 'footer.dart';
 import 'database.dart';
 
 class AlertHistory extends StatefulWidget {
+  final FirebaseUser user;
+  AlertHistory(this.user);
   @override
   _AlertHistoryState createState() => _AlertHistoryState();
 }
@@ -12,25 +15,27 @@ class _AlertHistoryState extends State<AlertHistory> {
   List<Container> containers = new List<Container>();
 
   void loadAlerts() {
-    getAllAlertsHistory().then((deviceAlerts) {
+    getAllAlertsHistory(widget.user).then((deviceAlerts) {
       for (Map<String, dynamic> alert in deviceAlerts) {
         this.setState(() {
           containers.add(Container(
-            child: ExpansionTile(
-              title: Row(
+            child: Card(
+              child: Row(
                 children: <Widget>[
                   Expanded(
                     child: Column(
                       children: <Widget>[
                         Text(alert['id'],
-                            style: TextStyle(color: Colors.green)),
+                            style: TextStyle(color: Colors.black)),
                         Text(alert['time'],
-                            style: TextStyle(color: Colors.green)),
+                            style: TextStyle(color: Colors.black)),
                       ],
                     ),
                   ),
                 ],
               ),
+              color: Colors.grey,
+              elevation: 20,
               //children: ,
             ),
           ));
@@ -53,7 +58,7 @@ class _AlertHistoryState extends State<AlertHistory> {
           Expanded(
               child: Padding(
                   padding: const EdgeInsets.all(20.0), child: TitleWidget())),
-          ClearHistory(),
+          ClearHistory(widget.user),
           Expanded(child: HistoryAlertsSetList(containers)),
           DesignedWidget(),
           LoveMakingWidget()
@@ -63,6 +68,8 @@ class _AlertHistoryState extends State<AlertHistory> {
 }
 
 class ClearHistory extends StatefulWidget {
+  final FirebaseUser user;
+  ClearHistory(this.user);
   @override
   _ClearHistoryState createState() => _ClearHistoryState();
 }
@@ -77,7 +84,7 @@ class _ClearHistoryState extends State<ClearHistory> {
           color: Colors.green,
           onPressed: () {
             setState(() {
-              clearAllHistory();
+              clearAllHistory(widget.user);
             });
           },
         )

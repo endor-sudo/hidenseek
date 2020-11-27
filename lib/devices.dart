@@ -1,3 +1,7 @@
+import 'package:flutter_blue/flutter_blue.dart';
+
+List<BluetoothDevice> actualdevicesToList = new List<BluetoothDevice>();
+
 class Device {
   String id, name, type, alert;
   Device(String id, String name, String type, {String alert}) {

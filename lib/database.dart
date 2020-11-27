@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_blue/flutter_blue.dart';
@@ -14,11 +15,12 @@ Map<String, dynamic> toJson(BluetoothDevice bluetoothDevice, String alertType) {
   };
 }
 
-void saveBlueDevice(
-    BluetoothDevice bluetoothDevice, String alertType, BuildContext context) {
+void saveBlueDevice(BluetoothDevice bluetoothDevice, String alertType,
+    BuildContext context, FirebaseUser user) {
   try {
+    log(user.uid);
     databaseReference
-        .child('btdevices/')
+        .child(user.uid + '/btdevices')
         .push()
         .set(toJson(bluetoothDevice, alertType));
     Navigator.of(context).pop();
@@ -44,17 +46,20 @@ Map<String, dynamic> alertToJson(String id) {
   };
 }
 
-Future<void> saveAlert(String id) async {
+Future<void> saveAlert(String id, FirebaseUser user) async {
   try {
-    databaseReference.child('deviceAlerts/').push().set(alertToJson(id));
+    databaseReference
+        .child(user.uid.toString() + '/deviceAlerts')
+        .push()
+        .set(alertToJson(id));
   } catch (e) {
     log('------------------------------------->' + e.toString());
   }
 }
 
-Future<List<Map<String, dynamic>>> getAllAlerts() async {
+Future<List<Map<String, dynamic>>> getAllAlerts(FirebaseUser user) async {
   DataSnapshot dataSnapshot =
-      await databaseReference.child('btdevices/').once();
+      await databaseReference.child(user.uid + '/btdevices').once();
   List<Map<String, dynamic>> deviceAlerts = [];
   if (dataSnapshot.value != null) {
     dataSnapshot.value.forEach((key, value) => {
@@ -73,9 +78,10 @@ Future<List<Map<String, dynamic>>> getAllAlerts() async {
   return deviceAlerts;
 }
 
-Future<List<Map<String, dynamic>>> getAllAlertsHistory() async {
+Future<List<Map<String, dynamic>>> getAllAlertsHistory(
+    FirebaseUser user) async {
   DataSnapshot dataSnapshot =
-      await databaseReference.child('deviceAlerts/').once();
+      await databaseReference.child(user.uid + '/deviceAlerts').once();
   List<Map<String, dynamic>> deviceAlerts = [];
   if (dataSnapshot.value != null) {
     dataSnapshot.value.forEach((key, value) => {
@@ -92,13 +98,13 @@ Future<List<Map<String, dynamic>>> getAllAlertsHistory() async {
   return deviceAlerts;
 }
 
-Future<void> clearAllHistory() async {
-  await databaseReference.child('deviceAlerts/').remove();
+Future<void> clearAllHistory(FirebaseUser user) async {
+  await databaseReference.child(user.uid + '/deviceAlerts').remove();
 }
 
-Future<void> deleteAlert(String id) async {
+Future<void> deleteAlert(String id, FirebaseUser user) async {
   DataSnapshot dataSnapshot =
-      await databaseReference.child('btdevices/').once();
+      await databaseReference.child(user.uid + '/btdevices').once();
   dynamic entryID;
   if (dataSnapshot.value != null) {
     dataSnapshot.value.forEach((key, value) => {
@@ -110,4 +116,20 @@ Future<void> deleteAlert(String id) async {
   }
   await databaseReference.child('btdevices/' + entryID.toString()).remove();
   //log(deviceAlerts.length.toString());
+}
+
+Future<bool> hasAlertBeenSet(FirebaseUser user, String id) async {
+  DataSnapshot dataSnapshot =
+      await databaseReference.child(user.uid + '/deviceAlerts').once();
+  bool itHas;
+  if (dataSnapshot.value != null) {
+    dataSnapshot.value.forEach((key, value) => {
+          if (value['id'] == id) {itHas = true},
+          log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + value['id']),
+          log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + id),
+          //log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + value['type']),
+        });
+  }
+  log('isHas:' + itHas.toString());
+  return itHas;
 }

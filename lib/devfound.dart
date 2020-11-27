@@ -1,15 +1,18 @@
 import 'dart:developer';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:hide_n_seek/devices.dart';
 import 'title.dart';
 import 'footer.dart';
 import 'database.dart';
 
 class DevFound extends StatefulWidget {
-  final List<BluetoothDevice> devices;
+  //final List<BluetoothDevice> devices;
+  final FirebaseUser user;
 
-  DevFound(this.devices);
+  DevFound(this.user);
 
   @override
   _DevFoundState createState() => _DevFoundState();
@@ -23,7 +26,7 @@ class _DevFoundState extends State<DevFound> {
           Expanded(
               child: Padding(
                   padding: const EdgeInsets.all(20.0), child: TitleWidget())),
-          Expanded(child: DevList(widget.devices)),
+          Expanded(child: DevList(actualdevicesToList, widget.user)),
           DesignedWidget(),
           LoveMakingWidget()
         ]),
@@ -33,7 +36,8 @@ class _DevFoundState extends State<DevFound> {
 
 class DevList extends StatefulWidget {
   final List<BluetoothDevice> devices;
-  DevList(this.devices);
+  final FirebaseUser user;
+  DevList(this.devices, this.user);
   @override
   _DevListState createState() => _DevListState();
 }
@@ -66,7 +70,8 @@ class _DevListState extends State<DevList> {
               'Yes',
               style: TextStyle(color: Colors.white),
             ),
-            onPressed: () => saveBlueDevice(device, customText, context),
+            onPressed: () =>
+                saveBlueDevice(device, customText, context, widget.user),
           ),
           FlatButton(
             color: Colors.green,
@@ -91,7 +96,7 @@ class _DevListState extends State<DevList> {
     }
 
     Future<void> hasAnAlertBeenSet(BluetoothDevice device) async {
-      await getAllAlerts().then((deviceAlerts) {
+      await getAllAlerts(widget.user).then((deviceAlerts) {
         for (Map<String, dynamic> alert in deviceAlerts) {
           log(alert['id'] + '=======' + device.id.toString());
           if (alert['id'] == device.id.toString()) {

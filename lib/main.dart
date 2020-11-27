@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:hide_n_seek/devfound.dart';
@@ -38,19 +39,21 @@ void main() async {
 
 class MyAppLoading extends StatefulWidget {
   final List<BluetoothDevice> devices;
-  MyAppLoading(this.devices);
+  final FirebaseUser user;
+  MyAppLoading(this.devices, this.user);
   @override
-  _MyAppStateLoading createState() => new _MyAppStateLoading(devices);
+  _MyAppStateLoading createState() => new _MyAppStateLoading(devices, user);
 }
 
 class _MyAppStateLoading extends State<MyAppLoading> {
   List<BluetoothDevice> devices;
-  _MyAppStateLoading(this.devices);
+  final FirebaseUser user;
+  _MyAppStateLoading(this.devices, this.user);
   @override
   Widget build(BuildContext context) {
     return new SplashScreen(
-        seconds: 3,
-        navigateAfterSeconds: new DevFound(devices),
+        seconds: 7,
+        navigateAfterSeconds: new DevFound(user),
         title: new Text(
           'HideNSeek',
           style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
@@ -71,8 +74,5 @@ class MyApp extends StatelessWidget {
   }
 }
 
-//sort alerthistory
-//organize database for multiple users
-
-//custom device name
-//graphically organize/fix error on landscape
+//fix overpopulation on devicesInAlert
+//fix disables button on devices found that is arbitrary
