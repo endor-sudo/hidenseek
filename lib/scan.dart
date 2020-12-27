@@ -107,11 +107,15 @@ class _RadarStillState extends State<RadarStill> {
   Future<void> checkForNotis() async {
     int notiId = 0;
     final List<DeviceAlert> devicesInAlert = new List<DeviceAlert>();
-    final FlutterBlue flutterBlue = FlutterBlue.instance;
 
     while (true) {
+      final FlutterBlue flutterBlue = FlutterBlue.instance;
       final List<Device> devicesScanned = new List<Device>();
       final List<BluetoothDevice> devicesToList = new List<BluetoothDevice>();
+      int cycle = 0;
+
+      flutterBlue.startScan(timeout: Duration(seconds: 4));
+      log('Start Scan', time: DateTime.now());
 
       //adds scanned devices to devicesScanned
       flutterBlue.scanResults.listen((results) {
@@ -122,20 +126,27 @@ class _RadarStillState extends State<RadarStill> {
                   result.device.id.toString(),
                   result.device.name.toString(),
                   result.device.type.toString()));
-              log(result.device.id.toString());
+              log('cycle' +
+                  cycle.toString() +
+                  ': ' +
+                  result.device.id.toString());
               devicesToList.add(result.device);
             });
           }
         }
       });
-      await Future.delayed(Duration(seconds: 5));
+
+      flutterBlue.stopScan();
+      log('Stop Scan', time: DateTime.now());
+
       log(devicesScanned.length.toString());
 
       //adds newly scanned device to devicesInAlert if it is new
       await getAllAlerts(widget.user).then((deviceAlerts) {
         for (Map<String, dynamic> alert in deviceAlerts) {
           for (Device deviceScanned in devicesScanned) {
-            if (deviceScanned.id != alert['id']) {
+            if (deviceScanned.id != alert['id'] &&
+                !devicesInAlert.contains(deviceScanned.id)) {
               //fix unnecessary overpopulation
               devicesInAlert.add(DeviceAlert(
                   alert['id'], alert['name'], alert['alert'], false, true));
@@ -152,6 +163,9 @@ class _RadarStillState extends State<RadarStill> {
         for (Device deviceScanned in devicesScanned) {
           if (deviceInAlert.id == deviceScanned.id) {
             deviceInAlert.isInRange = true;
+            break;
+          } else {
+            deviceInAlert.isInRange = false;
           }
         }
       }
@@ -177,10 +191,8 @@ class _RadarStillState extends State<RadarStill> {
 
       actualdevicesToList = List.from(devicesToList);
 
-      flutterBlue.startScan(timeout: Duration(seconds: 4));
-
-      await Future.delayed(Duration(seconds: 2));
       log('9 Fim_________________________');
+      await Future.delayed(Duration(seconds: 60));
     }
   }
 

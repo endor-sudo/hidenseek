@@ -43,16 +43,14 @@ class DevList extends StatefulWidget {
 }
 
 class _DevListState extends State<DevList> {
-  bool beenSet = false;
-
   void setState(fn) {
     if (mounted) {
       super.setState(fn);
     }
   }
 
-  ListView _buildListViewOfDevices(
-      final List<BluetoothDevice> devices, BuildContext context) {
+  Future<ListView> _buildListViewOfDevices(
+      final List<BluetoothDevice> devices, BuildContext context) async {
     List<Container> containers = new List<Container>();
 
     void popup(
@@ -95,7 +93,8 @@ class _DevListState extends State<DevList> {
       );
     }
 
-    Future<void> hasAnAlertBeenSet(BluetoothDevice device) async {
+    Future<bool> hasAnAlertBeenSet(BluetoothDevice device) async {
+      bool beenSet;
       await getAllAlerts(widget.user).then((deviceAlerts) {
         for (Map<String, dynamic> alert in deviceAlerts) {
           log(alert['id'] + '=======' + device.id.toString());
@@ -107,14 +106,17 @@ class _DevListState extends State<DevList> {
           }
         }
       });
-      log(beenSet.toString());
+      log('hasAnAlertBeenSet: ' + beenSet.toString());
+      return beenSet;
     }
 
-    List<Widget> alertButtonsFunc(
-        BluetoothDevice device, BuildContext context) {
+    Future<bool> beenSet(BluetoothDevice device) async {
+      return await hasAnAlertBeenSet(device);
+    }
+
+    Future<List<Widget>> alertButtonsFunc(
+        BluetoothDevice device, BuildContext context) async {
       //check whether the device already has an alert set and disable the button hide and seek accordingly
-      hasAnAlertBeenSet(device);
-      log(beenSet.toString());
       List<Widget> alertButtons = new List<Widget>();
       alertButtons.add(
         FlatButton(
@@ -123,7 +125,9 @@ class _DevListState extends State<DevList> {
             'Hide',
             style: TextStyle(color: Colors.white),
           ),
-          onPressed: beenSet ? null : () => popup(device, context, "hide"),
+          onPressed: await beenSet(device)
+              ? null
+              : () => popup(device, context, "hide"),
         ),
       );
       alertButtons.add(
@@ -133,10 +137,11 @@ class _DevListState extends State<DevList> {
             'Seek',
             style: TextStyle(color: Colors.white),
           ),
-          onPressed: beenSet ? null : () => popup(device, context, "seek"),
+          onPressed: await beenSet(device)
+              ? null
+              : () => popup(device, context, "seek"),
         ),
       );
-      beenSet = false;
       log(beenSet.toString());
       return alertButtons;
     }
@@ -160,7 +165,7 @@ class _DevListState extends State<DevList> {
               ),
             ],
           ),
-          children: alertButtonsFunc(device, context),
+          children: await alertButtonsFunc(device, context),
         ),
       ));
     }
@@ -175,6 +180,22 @@ class _DevListState extends State<DevList> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildListViewOfDevices(widget.devices, context);
+    return FutureBuilder(
+        future: _buildListViewOfDevices(widget.devices, context),
+        builder: (BuildContext context, AsyncSnapshot<ListView> snapshot) {
+          if (snapshot.hasData) {
+            return snapshot.data;
+          } else {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Text('Checking for Set Alerts'),
+                ],
+              ),
+            );
+          }
+        });
   }
 }
